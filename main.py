@@ -8,6 +8,7 @@ from plotly.graph_objects import Figure, Scatter
 import plotly
 import numpy as np
 import pandas as pd
+import re
 
 pd.options.plotting.backend = "plotly"
 
@@ -19,12 +20,19 @@ class SensorAnalyserView(QWidget):
         
         self.initUI()
     def onItemClicked(self):
-        filepath = self.treeWidget.selectedItems()[0].filepath
+        selectedItem = self.treeWidget.selectedItems()[0]
+        filepath = selectedItem.filepath
         print(filepath)
         if filepath.endswith(".csv"):
             dataset = pd.read_csv(filepath)
+            print("selectedItem.text(0):", selectedItem.text(0))
             try:
-                fig = dataset[["gx", "gy", "gz"]].plot()
+                if re.fullmatch("(sc){1}\d(_){1}(ss|lg){1}(.csv){1}", selectedItem.text(0)) != None:
+                    print("matched!")
+                    fig = dataset[["Gx", "Gy", "Gz"]].plot()  
+                else:
+                    fig = dataset[["gx", "gy", "gz"]].plot()  
+                
                 html = '<html><head><meta charset="utf-8" />'
                 html += '<body>'
                 html += plotly.offline.plot(fig, output_type='div', include_plotlyjs='cdn', config={"displaylogo": False, 'modeBarButtonsToRemove': ['toImage']})
