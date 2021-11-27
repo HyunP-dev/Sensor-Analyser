@@ -73,15 +73,6 @@ class SensorAnalyserView(QWidget):
     def fileDetail(filename: str, size: int, type: str) -> str:
         return f"<p align='center'><br><b>filename</b><br>{filename}<br><br><b>size</b><br>{convert_bytes(size)}<br><br><b>type</b><br>{type}</p>"
 
-    def refresh(root_dir: str, parentItem: Union[QTreeWidgetItem, QTreeWidget]):
-        files = os.listdir(root_dir)
-        for file in files:
-            fitem = QTreeWidgetItem(parentItem)
-            path = os.path.join(root_dir, file)
-            fitem.filepath = path
-            fitem.setText(0, file)
-            if os.path.isdir(path):
-                SensorAnalyserView.refresh(path, fitem)
 
     def initUI(self):
         hbox = QHBoxLayout()
@@ -132,6 +123,7 @@ class SensorAnalyserView(QWidget):
         self.edit = QLineEdit()
         self.edit.setFrame(True)
         self.edit.setText(os.path.abspath("./"))
+        self.edit.returnPressed.connect(lambda : self.treeWidget.setPath(self.edit.text()))
         lupHBox.addWidget(self.edit)
         lupHBox.addWidget(self.treeWidget)
 
