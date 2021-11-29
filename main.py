@@ -13,6 +13,8 @@ import pandas as pd
 import re
 
 from widgets import FileTreeWidget
+from dialogs import *
+from applications import *
 
 pd.options.plotting.backend = "plotly"
 
@@ -79,8 +81,6 @@ class SensorAnalyserView(QWidget):
         self.treeWidget = FileTreeWidget(self, "./")
         self.treeWidget.itemDoubleClicked.connect(self.onItemClicked)
         self.treeWidget.itemDoubleClicked.connect(self.showFileDetail)
-
-        # SensorAnalyserView.refresh("./", self.treeWidget)
 
         leftPanel = QFrame()
         leftPanel.setFrameShape(QFrame.WinPanel)
@@ -180,8 +180,19 @@ class MainWindow(QMainWindow):
         low_pass_filter_btn = QAction(QIcon("icons/lpf.png"), "Low Pass Filter", self)
         low_pass_filter_btn.triggered.connect(lambda self: print("Button Clicked"))
 
+        def showHistogram():
+            if (dataset:=self.centralWidget().dataset) is not None:
+                dialog = SelectHistogramVariablesDialog(self.centralWidget().dataset.columns)
+                if dialog.showModal():
+                    print(dialog.result)
+                    self.histViewer = HistogramViewer(dataset, dialog.result)
+
+                else:
+                    # 취소 버튼을 눌렀을 때.
+                    pass
+
         hist_btn = QAction(QIcon("icons/hist.png"), "Histogram", self)
-        hist_btn.triggered.connect(lambda self: print("Button Clicked"))
+        hist_btn.triggered.connect(lambda self: showHistogram())
 
         toolbar.addAction(low_pass_filter_btn)
         toolbar.addAction(hist_btn)
